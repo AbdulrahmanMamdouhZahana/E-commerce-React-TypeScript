@@ -46,7 +46,7 @@ export const LoginRequest = createAsyncThunk<
     try {
       const { data } = await axiosInstance.post("/auth/local", ApiData);
 
-      console.log("Login response:", data);
+      // console.log("Login response:", data);
 
       return data;
     } catch (error) {
@@ -123,7 +123,7 @@ export const loginApi = createSlice({
         toast({
           title: `${action.payload?.error?.message ?? "Login failed"}`,
           status: "error",
-          duration: 5000,
+          duration: 500,
           isClosable: true,
         });
       });
