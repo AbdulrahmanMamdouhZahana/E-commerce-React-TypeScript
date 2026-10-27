@@ -45,6 +45,29 @@ import { data } from "react-router-dom";
 
 const {toast} = createStandaloneToast();
 
+const getValidImageUrl = (
+  img?: {
+    url?: string;
+    formats?: {
+      thumbnail?: { url?: string };
+      small?: { url?: string };
+      medium?: { url?: string };
+      large?: { url?: string };
+    };
+  },
+  preferThumbnail = false
+): string | undefined => {
+  if (!img) return undefined;
+  const rawUrl = preferThumbnail
+    ? img.formats?.thumbnail?.url || img.url
+    : img.url || img.formats?.medium?.url || img.formats?.small?.url || img.formats?.thumbnail?.url;
+  if (!rawUrl) return undefined;
+  if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+    return rawUrl;
+  }
+  return `${import.meta.env.VITE_SERVER_API}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}`;
+};
+
 
 const DashboardProductes = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -539,20 +562,29 @@ const DashboardProductes = () => {
           w="full"
         >
           <Flex gap={3} align="start" mb={3}>
-            <Image
-              src={
-                product.Image?.formats?.thumbnail?.url
-                  ? `${import.meta.env.VITE_SERVER_API}${product.Image.formats.thumbnail.url}`
-                  : product.Image?.url
-                    ? `${import.meta.env.VITE_SERVER_API}${product.Image.url}`
-                    : undefined
-              }
-              alt={product.title}
-              boxSize="80px"
-              objectFit="cover"
+            <Box
+              boxSize="84px"
+              minW="84px"
               borderRadius="lg"
-              fallbackSrc="https://via.placeholder.com/80"
-            />
+              overflow="hidden"
+              bg="gray.900"
+              border="1px solid"
+              borderColor="whiteAlpha.200"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              p={1}
+            >
+              <Image
+                src={getValidImageUrl(product.Image, true)} 
+                alt={product.title}
+                maxW="100%"
+                maxH="100%"
+                objectFit="contain"
+                borderRadius="md"
+                fallbackSrc="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&q=80"
+              />
+            </Box>
 
             <Box flex="1" minW={0}>
               <Text fontSize="xs" color="gray.500">
@@ -629,20 +661,28 @@ const DashboardProductes = () => {
               <Td>{product.id}</Td>
               <Td>{shortChar(product.title)}</Td>
               <Td>
-                <Image
-                  src={
-                    product.Image?.formats?.thumbnail?.url
-                      ? `${import.meta.env.VITE_SERVER_API}${product.Image.formats.thumbnail.url}`
-                      : product.Image?.url
-                        ? `${import.meta.env.VITE_SERVER_API}${product.Image.url}`
-                        : undefined
-                  }
-                  alt={product.title}
-                  boxSize="50px"
-                  objectFit="cover"
+                <Box
+                  boxSize="52px"
                   borderRadius="md"
-                  fallbackSrc="https://via.placeholder.com/50"
-                />
+                  overflow="hidden"
+                  bg="gray.900"
+                  border="1px solid"
+                  borderColor="whiteAlpha.200"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  p={1}
+                >
+                  <Image
+                    src={getValidImageUrl(product.Image, true)}
+                    alt={product.title}
+                    maxW="100%"
+                    maxH="100%"
+                    objectFit="contain"
+                    borderRadius="sm"
+                    fallbackSrc="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&q=80"
+                  />
+                </Box>
               </Td>
               <Td>{product.brand || "—"}</Td>
               <Td>{shortChar(product.description)}</Td>
@@ -694,20 +734,29 @@ const DashboardProductes = () => {
            
                <VStack align="stretch" spacing={4}>
 
-      <Image
-        src={
-          opendProduct.Image?.formats?.thumbnail?.url
-            ? `${import.meta.env.VITE_SERVER_API}${opendProduct.Image.formats.thumbnail.url}`
-            : opendProduct.Image?.url
-              ? `${import.meta.env.VITE_SERVER_API}${opendProduct.Image.url}`
-              : undefined
-        }
-        alt={opendProduct.title}
+      <Box
         w="100%"
-        maxH="220px"
-        objectFit="contain"
-        borderRadius="md"
-      />
+        h="260px"
+        bg="gray.900"
+        borderRadius="xl"
+        border="1px solid"
+        borderColor="whiteAlpha.200"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        p={4}
+        overflow="hidden"
+      >
+        <Image
+          src={getValidImageUrl(opendProduct.Image, false)}
+          alt={opendProduct.title}
+          maxW="100%"
+          maxH="100%"
+          objectFit="contain"
+          borderRadius="md"
+          fallbackSrc="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&q=80"
+        />
+      </Box>
 
       <Heading size="md">{opendProduct.title}</Heading>
 
@@ -761,24 +810,35 @@ const DashboardProductes = () => {
                   
 
                   <FormControl>
-     <Image
-        src={
-          editProduct.Image?.formats?.thumbnail?.url
-            ? `${import.meta.env.VITE_SERVER_API}${editProduct.Image.formats.thumbnail.url}`
-            : editProduct.Image?.url
-              ? `${import.meta.env.VITE_SERVER_API}${editProduct.Image.url}`
-              : undefined
-        }
-        alt={editProduct.title}
-        w="100%"
-        maxH="220px"
-        objectFit="contain"
-        borderRadius="md"
+                    <FormLabel>Product Image Preview</FormLabel>
+                    <Box
+                      w="100%"
+                      h="220px"
+                      bg="gray.900"
+                      borderRadius="xl"
+                      border="1px solid"
+                      borderColor="whiteAlpha.200"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      p={3}
+                      overflow="hidden"
+                    >
+                      <Image
+                        src={
+                          thumbnail
+                            ? URL.createObjectURL(thumbnail as unknown as Blob)
+                            : getValidImageUrl(editProduct.Image, false)
+                        }
+                        alt={editProduct.title}
+                        maxW="100%"
+                        maxH="100%"
+                        objectFit="contain"
+                        borderRadius="md"
+                        fallbackSrc="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&q=80"
                       />
-                      
-  
-            
-          </FormControl>
+                    </Box>
+                  </FormControl>
           
 
           
@@ -949,13 +1009,38 @@ Close
 
             
           <FormControl>
-  <FormLabel>Product Photo</FormLabel>
-  <Input
-    type="file"
-    accept="image/*"
-    onChange={handleChangeThumbnail}
-  />
-</FormControl>
+            <FormLabel>Product Photo</FormLabel>
+            {Boolean(thumbnail) && (
+              <Box
+                w="100%"
+                h="160px"
+                bg="gray.900"
+                borderRadius="lg"
+                border="1px solid"
+                borderColor="whiteAlpha.200"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                p={2}
+                mb={3}
+                overflow="hidden"
+              >
+                <Image
+                  src={thumbnail ? URL.createObjectURL(thumbnail as unknown as Blob) : undefined}
+                  alt="Selected Preview"
+                  maxW="100%"
+                  maxH="100%"
+                  objectFit="contain"
+                  borderRadius="md"
+                />
+              </Box>
+            )}
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleChangeThumbnail}
+            />
+          </FormControl>
             
 
 </Stack>

@@ -67,8 +67,9 @@ const ProductPage = () => {
   }
 
   const imageUrl =
-    data.Image?.formats?.thumbnail?.url ??
-    data.Image?.url;
+     data.Image?.formats?.thumbnail?.url
+                  ? `${data.Image.url}`
+                  : data.Image.formats.thumbnail.url
 
   return (
     <Box textAlign="center" p={5}>
@@ -87,7 +88,7 @@ const ProductPage = () => {
         >
           {imageUrl && (
             <Image
-              src={`${import.meta.env.VITE_SERVER_API}${imageUrl}`}
+              src={`${imageUrl}`}
               alt={data.title ?? "Product image"}
               boxSize="250px"
               objectFit="cover"

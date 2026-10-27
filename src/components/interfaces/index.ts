@@ -19,5 +19,6 @@
                  url:string
              } 
          }
+         url?:string , 
      }
 }

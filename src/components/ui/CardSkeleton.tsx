@@ -16,6 +16,7 @@ const CardSkeleton = () => {
     <SkeletonText noOfLines={2} w={100} gap={5} />
     <SkeletonText noOfLines={5}  gap={2} />
     <SkeletonText noOfLines={1} w={100} gap={5} />
+    <SkeletonText noOfLines={1} w={100} gap={5} />
     <SkeletonText noOfLines={1} w={120} h={50} mx={"auto"} gap={5} />
 
     </Stack>

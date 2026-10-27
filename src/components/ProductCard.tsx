@@ -12,9 +12,9 @@ import {
 
 import type { IProduct } from "./interfaces";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "../app/store";
+import { useDispatch } from "react-redux";
 import { AddToCartAction } from "../app/features/cartSlice";
+import CardSkeleton from "./ui/CardSkeleton";
 
 interface IProps {
   isLoading?: boolean;
@@ -26,27 +26,42 @@ const ProductCard = ({ isLoading, isError, data }: IProps) => {
   const navigate = useNavigate();
 
   const dispatch = useDispatch(); 
-  const { prdouctsCart } = useSelector((state: RootState) => state.cart); 
-  console.log(prdouctsCart);
+  // const { prdouctsCart } = useSelector((state: RootState) => state.cart); 
+  // console.log(prdouctsCart);
   
 
   const toProduct = (id: string) => {
     navigate(`/products/${id}`);
+
   };
 
   if (isLoading) {
-    return <Text>Loading...</Text>;
-  }
+    return Array.from({ length: 20 }, (_, index) => (
+
+           <Box display={"inline-block"} w={"350px"} ml={"65px"} mt={7}>
+              <CardSkeleton key={index} />
+    </Box>   
+
+
+))
+
+  };
+  
+  
 
   if (isError) {
     return <Text color="red.500">Something went wrong.</Text>;
   }
+
 
   if (!data?.length) {
     return <Text>No products found.</Text>;
   }
 
 
+
+  console.log(data);
+  
   // handler 
   const AddToCart = (p:IProduct) => { 
 
@@ -72,10 +87,9 @@ const ProductCard = ({ isLoading, isError, data }: IProps) => {
             <Image
               src={
                 p.Image?.formats?.thumbnail?.url
-                  ? `${import.meta.env.VITE_SERVER_API}${p.Image.formats.thumbnail.url}`
-                  : p.Image?.url
-                    ? `${import.meta.env.VITE_SERVER_API}${p.Image.url}`
-                    : undefined
+                  ? `${p.Image.url}`
+                  : p.Image.formats.thumbnail.url
+               
               }
               alt={p.title}
               boxSize="250px"
