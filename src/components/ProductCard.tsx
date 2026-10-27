@@ -129,6 +129,12 @@ const ProductCard = ({ isLoading, isError, data }: IProps) => {
               {p.title}
             </Text>
 
+              
+    <Text fontSize="13" fontWeight="thin">
+              {p.description}
+            </Text>
+
+
             <Text fontWeight="medium" mt={2}>
               {p.brand}
             </Text>
