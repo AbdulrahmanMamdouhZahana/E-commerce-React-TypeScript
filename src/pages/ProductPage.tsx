@@ -17,11 +17,35 @@ import CardSkeleton from "../components/ui/CardSkeleton";
 import { AddToCartAction } from "../app/features/cartSlice";
 import { useDispatch } from "react-redux";
 
+const getValidImageUrl = (img?: unknown): string | undefined => {
+  if (!img) return undefined;
+  const imageObj = Array.isArray(img) ? img[0] : img;
+  if (!imageObj || typeof imageObj !== "object") return undefined;
+  const target = imageObj as {
+    url?: string;
+    formats?: {
+      thumbnail?: { url?: string };
+      small?: { url?: string };
+      medium?: { url?: string };
+      large?: { url?: string };
+    } | null;
+  };
+  const rawUrl =
+    target.url ||
+    target.formats?.medium?.url ||
+    target.formats?.small?.url ||
+    target.formats?.thumbnail?.url;
+  if (!rawUrl || typeof rawUrl !== "string") return undefined;
+  if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+    return rawUrl;
+  }
+  return `${import.meta.env.VITE_SERVER_API}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}`;
+};
+
 const ProductPage = () => {
   const { documentId } = useParams<{ documentId: string }>();
   const navigate = useNavigate();
-    const dispatch = useDispatch(); 
-
+  const dispatch = useDispatch();
 
   const {
     isLoading,
@@ -34,11 +58,28 @@ const ProductPage = () => {
         throw new Error("Product ID is missing");
       }
 
-      const { data } = await axiosInstance.get(
-        `/products/${documentId}?populate=*`
-      );
+      try {
+        const { data } = await axiosInstance.get(
+          `/products/${documentId}?populate=*`
+        );
+        if (data?.data) {
+          return data.data;
+        }
+      } catch (err) {
+        // Fallback: if documentId is a numeric id or filter query is needed
+        const filterParam = /^\d+$/.test(documentId)
+          ? `filters[id][$eq]=${documentId}`
+          : `filters[documentId][$eq]=${documentId}`;
+        const filterRes = await axiosInstance.get(
+          `/products?${filterParam}&populate=*`
+        );
+        if (filterRes.data?.data?.[0]) {
+          return filterRes.data.data[0];
+        }
+        throw err;
+      }
 
-      return data.data;
+      throw new Error("Product not found");
     },
     enabled: Boolean(documentId),
   });
@@ -66,10 +107,7 @@ const ProductPage = () => {
     );
   }
 
-  const imageUrl =
-     data.Image?.formats?.thumbnail?.url
-                  ? `${data.Image.url}`
-                  : data.Image.formats.thumbnail.url
+  const imageUrl = getValidImageUrl(data.Image);
 
   return (
     <Box textAlign="center" p={5}>

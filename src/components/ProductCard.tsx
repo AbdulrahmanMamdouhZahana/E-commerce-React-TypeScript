@@ -22,6 +22,31 @@ interface IProps {
   data: IProduct[];
 }
 
+const getValidImageUrl = (img?: unknown): string | undefined => {
+  if (!img) return undefined;
+  const imageObj = Array.isArray(img) ? img[0] : img;
+  if (!imageObj || typeof imageObj !== "object") return undefined;
+  const target = imageObj as {
+    url?: string;
+    formats?: {
+      thumbnail?: { url?: string };
+      small?: { url?: string };
+      medium?: { url?: string };
+      large?: { url?: string };
+    } | null;
+  };
+  const rawUrl =
+    target.url ||
+    target.formats?.medium?.url ||
+    target.formats?.small?.url ||
+    target.formats?.thumbnail?.url;
+  if (!rawUrl || typeof rawUrl !== "string") return undefined;
+  if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+    return rawUrl;
+  }
+  return `${import.meta.env.VITE_SERVER_API}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}`;
+};
+
 const ProductCard = ({ isLoading, isError, data }: IProps) => {
   const navigate = useNavigate();
 
@@ -75,29 +100,29 @@ const ProductCard = ({ isLoading, isError, data }: IProps) => {
       gap={5}
       w="full"
     >
-      {data.map((p: IProduct) => (
-        <Card
-          key={p.documentId}
-          overflow="hidden"
-          bg="transparent"
-          border="1px solid"
-          borderColor="gray.300"
-        >
-          <Box p={4}>
-            <Image
-              src={
-                p.Image?.formats?.thumbnail?.url
-                  ? `${p.Image.url}`
-                  : p.Image.formats.thumbnail.url
-               
-              }
-              alt={p.title}
-              boxSize="250px"
-              objectFit="cover"
-              borderRadius="lg"
-              mx="auto"
-            />
-          </Box>
+      {data.map((p: IProduct) => {
+        const imageUrl = getValidImageUrl(p.Image);
+
+        return (
+          <Card
+            key={p.documentId || p.id}
+            overflow="hidden"
+            bg="transparent"
+            border="1px solid"
+            borderColor="gray.300"
+          >
+            <Box p={4}>
+              {imageUrl && (
+                <Image
+                  src={imageUrl}
+                  alt={p.title ?? "Product image"}
+                  boxSize="250px"
+                  objectFit="cover"
+                  borderRadius="lg"
+                  mx="auto"
+                />
+              )}
+            </Box>
 
           <CardBody>
             <Text fontSize="xl" fontWeight="bold">
@@ -129,7 +154,8 @@ const ProductCard = ({ isLoading, isError, data }: IProps) => {
             </Button>
           </CardFooter>
         </Card>
-      ))}
+      );
+    })}
     </Grid>
   );
 };

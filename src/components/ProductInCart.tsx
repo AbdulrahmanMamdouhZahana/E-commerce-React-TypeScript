@@ -28,11 +28,13 @@ const ProductInCart = ({ product }: IProps) => {
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const imgBg = useColorModeValue("gray.50", "gray.900");
 
-  const imageUrl = product.Image?.formats?.thumbnail?.url
-    ? `${import.meta.env.VITE_SERVER_API}${product.Image.formats.thumbnail.url}`
-    : product.Image?.url
-      ? `${import.meta.env.VITE_SERVER_API}${product.Image.url}`
-      : undefined;
+  const rawImageUrl =
+    product.Image?.formats?.thumbnail?.url || product.Image?.url;
+  const imageUrl = rawImageUrl
+    ? rawImageUrl.startsWith("http://") || rawImageUrl.startsWith("https://")
+      ? rawImageUrl
+      : `${import.meta.env.VITE_SERVER_API}${rawImageUrl.startsWith("/") ? "" : "/"}${rawImageUrl}`
+    : undefined;
 
   const removeProduct = () => {
     dispatch(removeFromCartAction(product.id));

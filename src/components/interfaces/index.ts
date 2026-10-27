@@ -12,13 +12,12 @@
     quantity:number ,
     title:string  ,
      updatedAt: string,
-     
-     Image: {
-         formats: {
-             thumbnail: {
-                 url:string
-             } 
-         }
-         url?:string , 
-     }
+     Image?: {
+         formats?: {
+             thumbnail?: {
+                 url: string;
+             };
+         } | null;
+         url?: string;
+     } | null;
 }

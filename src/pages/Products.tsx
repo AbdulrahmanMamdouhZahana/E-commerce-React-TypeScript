@@ -7,17 +7,9 @@ const Products = () => {
     
 
     // get All Proucts 
-        const getProducts = async () => { 
-
-
-        try {
-            const { data } = await axiosInstance.get("/products?populate=*");
-            return data;
-        
-        } catch (error) {
-            return error
-        
-      }
+    const getProducts = async () => { 
+        const { data } = await axiosInstance.get("/products?populate=*");
+        return data;
     }
 
       const { isError, isLoading, data } = useQuery({

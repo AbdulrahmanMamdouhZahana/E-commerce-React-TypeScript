@@ -89,8 +89,8 @@ const getValidImageUrl = (
       small?: { url?: string };
       medium?: { url?: string };
       large?: { url?: string };
-    };
-  },
+    } | null;
+  } | null,
   preferThumbnail = false
 ): string | undefined => {
   if (!img) return undefined;
