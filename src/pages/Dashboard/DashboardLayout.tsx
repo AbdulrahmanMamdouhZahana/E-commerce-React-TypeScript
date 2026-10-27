@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   IconButton,
   Avatar,
@@ -17,6 +16,8 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  type BoxProps,
+  type FlexProps,
 } from '@chakra-ui/react';
 import {
   FiHome,
@@ -26,8 +27,9 @@ import {
   FiChevronDown,
   FiArrowLeft,
 } from 'react-icons/fi';
-import {  Outlet, useNavigate } from 'react-router-dom';
-import {Link } from "react-router-dom"
+import type { IconType } from 'react-icons';
+import { Outlet } from 'react-router-dom';
+import { Link } from "react-router-dom"
 import CookieServices from '../../services/CookieServices';
 
 // Sidebar links matching your screenshot
@@ -75,10 +77,11 @@ const DashboardLayout=({ })=> {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                               SIDEBAR COMPONENT                            */
-/* -------------------------------------------------------------------------- */
-const SidebarContent = ({ onClose, ...rest }) => {
+interface SidebarProps extends BoxProps {
+  onClose: () => void;
+}
+
+const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   return (
     <Box
       transition="3s ease"
@@ -106,8 +109,13 @@ const SidebarContent = ({ onClose, ...rest }) => {
   );
 };
 
+interface NavItemProps extends FlexProps {
+  icon?: IconType;
+  children: React.ReactNode;
+  to: string;
+}
 
-const NavItem = ({ icon, children, to, ...rest }) => {
+const NavItem = ({ icon, children, to, ...rest }: NavItemProps) => {
   return (
     <Flex
       as={Link}
@@ -146,7 +154,11 @@ const NavItem = ({ icon, children, to, ...rest }) => {
 /* -------------------------------------------------------------------------- */
 /*                                HEADER COMPONENT                            */
 /* -------------------------------------------------------------------------- */
-const MobileNav = ({ onOpen, ...rest }) => {
+interface MobileProps extends FlexProps {
+  onOpen: () => void;
+}
+
+const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   return (
     <Flex
       ml={{ base: 0, md: 60 }}

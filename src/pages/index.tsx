@@ -10,17 +10,13 @@ import {
   HStack,
   VStack,
   Icon,
-  Badge,
   Grid,
   GridItem,
 } from "@chakra-ui/react";
 import {
   FiArrowRight,
-  FiArrowUpRight,
   FiTruck,
   FiShield,
-  FiHeadphones,
-  FiHeart,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 

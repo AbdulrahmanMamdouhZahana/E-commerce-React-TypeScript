@@ -16,12 +16,8 @@ import {
   REGISTER,
 } from 'redux-persist'
 
-import storageModule from 'redux-persist/lib/storage'
+import storage from 'redux-persist/lib/storage'
 import internetConnection  from './features/internetConnection'
-
-const storage = 'default' in storageModule
-  ? storageModule.default
-  : storageModule
 
 const persistConfig = {
   key: 'cart',

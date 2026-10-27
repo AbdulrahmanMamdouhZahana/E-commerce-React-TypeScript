@@ -22,7 +22,11 @@ import { Navigate } from "react-router-dom";
 
 
 
-const LoginPage = ({ isLogdin}) => {
+interface LoginPageProps {
+  isLogdin?: string | boolean;
+}
+
+const LoginPage = ({ isLogdin }: LoginPageProps) => {
   const [isEmail, setIsEmail] = useState(false);
   const [isPassword, setIsPassword] = useState(false);
 

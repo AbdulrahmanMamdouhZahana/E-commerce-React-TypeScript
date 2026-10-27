@@ -1,5 +1,5 @@
 
-import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../components/config";
 
 
@@ -12,15 +12,35 @@ import CookieServices from "../../services/CookieServices";
 
 const { toast } = createStandaloneToast();
 
+export interface ILoginResponse {
+  jwt: string;
+  user: {
+    id: number;
+    username: string;
+    email: string;
+    [key: string]: unknown;
+  };
+}
 
+export interface ILoginError {
+  error: {
+    message: string;
+    status?: number;
+    name?: string;
+  };
+}
 
 interface IInitialState {
   loading: boolean;
-  data: any | null;
-  error: any | null;
+  data: ILoginResponse | null;
+  error: ILoginError | null;
 }
 
-export const LoginRequest = createAsyncThunk(
+export const LoginRequest = createAsyncThunk<
+  ILoginResponse,
+  { identifier: string; password: string },
+  { rejectValue: ILoginError }
+>(
   "login/LoginRequest",
   async (ApiData: { identifier: string; password: string }, thunkAPI) => {
     try {
@@ -31,12 +51,18 @@ export const LoginRequest = createAsyncThunk(
       return data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        return thunkAPI.rejectWithValue(
-          error.response?.data ?? error.message
-        );
+        const errorData = error.response?.data;
+        if (errorData && typeof errorData === "object" && "error" in errorData) {
+          return thunkAPI.rejectWithValue(errorData as ILoginError);
+        }
+        return thunkAPI.rejectWithValue({
+          error: { message: error.message }
+        });
       }
 
-      return thunkAPI.rejectWithValue("Something went wrong");
+      return thunkAPI.rejectWithValue({
+        error: { message: "Something went wrong" }
+      });
     }
   }
 );
@@ -90,19 +116,16 @@ export const loginApi = createSlice({
 
       })
 
-      .addCase(LoginRequest.rejected, (state , action ) => {
+      .addCase(LoginRequest.rejected, (state, action) => {
         state.loading = false;
-          state.error = action.payload;
-          
+        state.error = action.payload ?? null;
 
-
-          toast({
-  title: `${action.payload.error.message}`,
-  status: "error",
-  duration: 5000,
-  isClosable: true,
-});
-
+        toast({
+          title: `${action.payload?.error?.message ?? "Login failed"}`,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       });
   },
 });

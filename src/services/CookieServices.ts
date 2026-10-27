@@ -1,25 +1,20 @@
 
-import Cookies from 'universal-cookie';
+import Cookies, { type CookieGetOptions, type CookieSetOptions } from 'universal-cookie';
 
 const cookies = new Cookies()
 
-// interface ICookieServices { 
-//     name: string, 
-//     value : string 
-// }
-
 class CookieServices  { 
 
-    get(name) { return cookies.get(name) }
+    get(name: string, options?: CookieGetOptions) { return cookies.get(name, options) }
 
 
-    set(name, value, option) { 
+    set(name: string, value: string, option?: CookieSetOptions) { 
         return cookies.set( name , value ,option)
     }
 
 
-    remove(name) {
-        return cookies.remove(name)
+    remove(name: string, options?: CookieSetOptions) {
+        return cookies.remove(name, options)
      }
 }
 

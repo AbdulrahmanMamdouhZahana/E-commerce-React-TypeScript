@@ -40,10 +40,46 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
 import { shortChar } from "../../utils";
 import CookieServices from "../../services/CookieServices";
-import { data } from "react-router-dom";
 
 
 const {toast} = createStandaloneToast();
+
+const initialProduct: IProduct = {
+  id: 0,
+  documentId: "",
+  title: "",
+  description: "",
+  price: 0,
+  stock: 0,
+  brand: "",
+  quantity: 0,
+  createdAt: "",
+  updatedAt: "",
+  publishedAt: "",
+  Image: {
+    formats: {
+      thumbnail: {
+        url: "",
+      },
+    },
+  },
+};
+
+interface ICreateProduct {
+  title: string;
+  description: string;
+  price: number | string;
+  stock: number | string;
+  brand: string;
+}
+
+const initialCreateProduct: ICreateProduct = {
+  title: "",
+  description: "",
+  price: "",
+  stock: "",
+  brand: "",
+};
 
 const getValidImageUrl = (
   img?: {
@@ -76,16 +112,16 @@ const DashboardProductes = () => {
   const [openEdit, setOpenEdit] = useState(false)
   const [openCreate, setOpenCreate] = useState(false)
     
-  const [opendProduct, setOpendProduct] = useState<IProduct>({})
-  const [editProduct, setEditProduct] = useState<IProduct>({})
+  const [opendProduct, setOpendProduct] = useState<IProduct>(initialProduct)
+  const [editProduct, setEditProduct] = useState<IProduct>(initialProduct)
   const [openDelete, setOpenDelete] = useState(false);
-  const [deletedProduct, setDeletedProduct] = useState<IProduct>({})
+  const [deletedProduct, setDeletedProduct] = useState<IProduct>(initialProduct)
 
-  const [thumbnail, setThumbnail] = useState();
+  const [thumbnail, setThumbnail] = useState<File | undefined>(undefined);
   const [Loading, setLoading] = useState(false);
   
 
-  const [createdProduct, setCreatedProduct] = useState<IProduct>({})
+  const [createdProduct, setCreatedProduct] = useState<ICreateProduct>(initialCreateProduct)
   
 
   const { isOnline } = useSelector((state: RootState) => state.internet)
@@ -187,8 +223,8 @@ const DashboardProductes = () => {
     
   const openEditHandler = (id: number) => {
         
-    const myProduct = data.data.find((product: IProduct) => product.id == id)
-    setEditProduct(myProduct)
+    const myProduct = data?.data?.find((product: IProduct) => product.id == id)
+    if (myProduct) setEditProduct(myProduct)
     setOpenEdit(true)
 
          
@@ -266,7 +302,14 @@ const DashboardProductes = () => {
 
 
 
-      const productData = {
+      const productData: {
+        title: string;
+        description: string;
+        price: number;
+        stock: number;
+        brand: string;
+        Image?: number;
+      } = {
         title: editProduct.title,
         description: editProduct.description,
         price: Number(editProduct.price),
@@ -394,7 +437,7 @@ const DashboardProductes = () => {
       });
 
       if ([200, 201, 204].includes(status)) {
-        setCreatedProduct({});
+        setCreatedProduct(initialCreateProduct);
         setThumbnail(undefined);
         setOpenCreate(false);
 
@@ -418,7 +461,7 @@ const DashboardProductes = () => {
           isClosable: true,
         });
       
-        setCreatedProduct({});
+        setCreatedProduct(initialCreateProduct);
       } else {
         console.error("Create product error:", error);
       }
@@ -502,9 +545,9 @@ const DashboardProductes = () => {
   const openDeleteHandle = (id: number) => {
 
 
-    const myProduct = data.data.find((product: IProduct) => product.id == id);
+    const myProduct = data?.data?.find((product: IProduct) => product.id == id);
         
-    setDeletedProduct(myProduct)
+    if (myProduct) setDeletedProduct(myProduct);
 
 
     setOpenDelete(true)
@@ -519,10 +562,10 @@ const DashboardProductes = () => {
 
 
   const openViewHandler = (id: number) => {
-    const myProduct = data.data.find((product: IProduct) => product.id == id)
+    const myProduct = data?.data?.find((product: IProduct) => product.id == id)
          
 
-    setOpendProduct(myProduct)
+    if (myProduct) setOpendProduct(myProduct)
     setOpenView(true)
          
     //  console.log(opendProduct);
@@ -979,7 +1022,7 @@ Close
 
                         <FormControl>
   <FormLabel>description</FormLabel>
-  <Textarea type='text' value={createdProduct.description} onChange={handleCreate} name="description" ></Textarea>
+  <Textarea value={createdProduct.description} onChange={handleCreate} name="description" ></Textarea>
 
             </FormControl>
 

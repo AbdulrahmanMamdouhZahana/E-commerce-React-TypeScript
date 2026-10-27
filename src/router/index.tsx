@@ -3,7 +3,6 @@ import Home from "../pages";
 import About from "../pages/About";
 import Products from "../pages/Products";
 import ProductPage from "../pages/ProductPage";
-import Navbar from "../components/layout/NavBar";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import LoginPage from "../pages/LoginPage";
 import AppLayout from "../components/layout/AppLayout";

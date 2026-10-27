@@ -1,7 +1,8 @@
 import { createStandaloneToast } from "@chakra-ui/react";
+import type { IProduct } from "../components/interfaces";
 const {toast} = createStandaloneToast();
 
-export const AddQuantity = (prdouctsCart = [], product = {}) => {
+export const AddQuantity = (prdouctsCart: IProduct[] = [], product: IProduct): IProduct[] => {
 
     const existed = prdouctsCart.find(item => item.id == product.id);
   

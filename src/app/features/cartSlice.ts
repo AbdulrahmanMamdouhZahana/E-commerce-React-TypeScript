@@ -7,8 +7,7 @@ import { createStandaloneToast } from "@chakra-ui/react";
 const {toast} = createStandaloneToast();
 
 interface IInitialState { 
-    prdouctsCart: IProduct[]  | any
-   
+    prdouctsCart: IProduct[]
 }
 
 
@@ -21,7 +20,7 @@ export const cartSlice = createSlice({
     initialState, 
     reducers: {
 
-        AddToCartAction: (state: IInitialState, action: PayloadAction) => { 
+        AddToCartAction: (state: IInitialState, action: PayloadAction<IProduct>) => { 
             state.prdouctsCart = AddQuantity(state.prdouctsCart, action.payload);
             
         
@@ -30,7 +29,7 @@ export const cartSlice = createSlice({
         }, 
         
 
-        removeFromCartAction: (state: IInitialState, action: PayloadAction) => {
+        removeFromCartAction: (state: IInitialState, action: PayloadAction<number>) => {
             
 
             state.prdouctsCart = state.prdouctsCart.filter((product) => product.id !== action.payload)
@@ -69,7 +68,7 @@ export const cartSlice = createSlice({
         }
         ,
                 
-        IncreaesQuantity: (state, action) => {
+        IncreaesQuantity: (state: IInitialState, action: PayloadAction<number>) => {
             state.prdouctsCart.map((product) => { 
 
                 if (product.id == action.payload) { 
@@ -86,7 +85,7 @@ export const cartSlice = createSlice({
         }
         ,
 
-           decreaesQuantity: (state, action) => {
+           decreaesQuantity: (state: IInitialState, action: PayloadAction<number>) => {
             state.prdouctsCart.map((product) => { 
 
                 if (product.id == action.payload) { 

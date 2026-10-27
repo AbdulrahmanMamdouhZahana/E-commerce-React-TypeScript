@@ -1,4 +1,4 @@
-import { background, Box, Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Input } from "@chakra-ui/react"
+import { Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay } from "@chakra-ui/react"
 import  { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
@@ -14,7 +14,7 @@ const  CartDrawer = ()=> {
   const { isOpen } = useSelector((state: RootState) => state.drawer)
   const { prdouctsCart} = useSelector((state:RootState)=>state.cart)
   const dispatch = useDispatch();
-  const btnRef = useRef()
+  const btnRef = useRef<HTMLButtonElement | null>(null)
 
 
 

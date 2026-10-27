@@ -2,8 +2,12 @@ import { Box, Heading, Text, Button } from "@chakra-ui/react";
 import { Navigate, useNavigate } from "react-router-dom";
 import CookieServices from "../../services/CookieServices";
 
-const Dashboard = () => {
-  const token = CookieServices.get("jwt");
+interface DashboardProps {
+  isLogdin?: string | boolean;
+}
+
+const Dashboard = ({ isLogdin }: DashboardProps = {}) => {
+  const token = isLogdin || CookieServices.get("jwt");
   const navigate = useNavigate();
 
   if (!token) return <Navigate to="/" replace />;

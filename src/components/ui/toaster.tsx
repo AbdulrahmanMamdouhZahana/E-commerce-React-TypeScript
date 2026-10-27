@@ -1,23 +1,14 @@
-import { Toaster as ChakraToaster, createToaster } from "@chakra-ui/react";
+import { createStandaloneToast } from "@chakra-ui/react";
 
-export const toaster = createToaster({
-  placement: "top-end",
+const { ToastContainer, toast } = createStandaloneToast({
+  defaultOptions: {
+    position: "top-right",
+  },
 });
 
-export function AppToaster() {
-  return (
-    <ChakraToaster toaster={toaster}>
-      {(toast) => (
-        <ChakraToaster.Toast>
-          <ChakraToaster.Title>
-            {toast.title}
-          </ChakraToaster.Title>
+export const toaster = toast;
 
-          <ChakraToaster.Description>
-            {toast.description}
-          </ChakraToaster.Description>
-        </ChakraToaster.Toast>
-      )}
-    </ChakraToaster>
-  );
+export function AppToaster() {
+  return <ToastContainer />;
 }
+
