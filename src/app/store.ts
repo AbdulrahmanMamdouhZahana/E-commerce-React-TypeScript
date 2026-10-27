@@ -16,8 +16,18 @@ import {
   REGISTER,
 } from 'redux-persist'
 
-import storage from 'redux-persist/lib/storage'
+import storageModule from 'redux-persist/lib/storage'
+import type { Storage } from 'redux-persist'
 import internetConnection  from './features/internetConnection'
+
+interface StorageModule extends Partial<Storage> {
+  default?: Storage;
+}
+
+const storage: Storage =
+  typeof (storageModule as StorageModule).getItem === 'function'
+    ? (storageModule as Storage)
+    : ((storageModule as StorageModule).default ?? (storageModule as Storage))
 
 const persistConfig = {
   key: 'cart',
