@@ -292,7 +292,12 @@ const DashboardProductes = () => {
 
         const uploadResponse = await axiosInstance.post(
           "/upload",
-          imageFormData
+          imageFormData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
         imageId = uploadResponse.data[0].id;
@@ -391,6 +396,9 @@ const DashboardProductes = () => {
           imageFormData,
           {
             signal: controller.signal,
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
 
