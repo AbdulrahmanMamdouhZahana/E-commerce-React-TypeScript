@@ -19,69 +19,47 @@ interface IProps {
 
 
 
-const InternetConnectionProvider = ({children }: IProps) => { 
-    
-
-    
-
+const InternetConnectionProvider = ({ children }: IProps) => { 
     const dispatch = useDispatch();
-
-       const {  isOnline} = useSelector((state: RootState) => state.internet)
-
-
-
-
-    // console.log(isOnline);
-
-    
-    function Online()  {
-        dispatch(IsOnlineAction(true))
-        closeAll();
-  
-     }
-
-    
-    
-    
-     function Offline()  {
-dispatch(IsOnlineAction(false))
-  
-    }
-    
-
-function closeAll() {
- 
-    toast.closeAll()
-  }
+    const { isOnline } = useSelector((state: RootState) => state.internet);
 
     useEffect(() => { 
+        function handleOnline() {
+            dispatch(IsOnlineAction(true));
+            toast.closeAll();
+        }
 
-        window.addEventListener("offline", Offline)
-        
-        window.addEventListener("online", Online);
+        function handleOffline() {
+            dispatch(IsOnlineAction(false));
+        }
 
-            
-    } , [])
+        window.addEventListener("offline", handleOffline);
+        window.addEventListener("online", handleOnline);
 
+        return () => {
+            window.removeEventListener("offline", handleOffline);
+            window.removeEventListener("online", handleOnline);
+        };
+    }, [dispatch]);
 
-
-    if (!isOnline) {
-   toast({
-  id: "offline-toast",
-  title: "You are Offline Now",
-  description: "Please check your internet connection.",
-  status: "warning",
-  duration: null,
-  icon: <FiWifiOff />,
-  isClosable: true,
-  position: "top",
-});
-
-     }
-    
-    
-    
+    useEffect(() => {
+        if (!isOnline) {
+            toast({
+                id: "offline-toast",
+                title: "You are Offline Now",
+                description: "Please check your internet connection.",
+                status: "warning",
+                duration: null,
+                icon: <FiWifiOff />,
+                isClosable: true,
+                position: "top",
+            });
+        } else {
+            toast.close("offline-toast");
+        }
+    }, [isOnline]);
 
     return children;
-}
+};
+
 export default InternetConnectionProvider;

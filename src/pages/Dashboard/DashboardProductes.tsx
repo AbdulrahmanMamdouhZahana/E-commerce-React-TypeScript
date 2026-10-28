@@ -28,6 +28,8 @@ import type { IProduct } from "../../components/interfaces";
 import ProductsTableSkeleton from "./ProductsTableSkeleton";
 import { useState } from "react";
 import DashboardModal from "./DashboardModal";
+import { Navigate } from "react-router-dom";
+
 
 
 
@@ -128,42 +130,27 @@ const DashboardProductes = () => {
 
 
 
-      const token = CookieServices.get("jwt")
-  
-  
+  const token = CookieServices.get("jwt");
+
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-
-
-  // console.log(editProduct);
-  
-
-
-
-
-
-
-
-
-
   const queryClient = useQueryClient();
-   
-    
-  //get data
 
+  // get data
   const getProducts = async () => {
-    const { data } = await axiosInstance.get("/products?populate=*", {
-      headers: {
-        Authorization: `Bearer ${token}` , 
-      }
-    });
+    const { data } = await axiosInstance.get("/products?populate=*");
     return data;
   };
 
-  const { isError, isLoading, data } = useQuery({
+  const { isError, isLoading, data, refetch } = useQuery({
     queryKey: ["products"],
     queryFn: getProducts,
   });
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
     
     
     
@@ -292,20 +279,13 @@ const DashboardProductes = () => {
 
         const uploadResponse = await axiosInstance.post(
           "/upload",
-          imageFormData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          imageFormData
         );
 
-        imageId = uploadResponse.data[0].id;
+        if (uploadResponse.data && uploadResponse.data[0]?.id) {
+          imageId = uploadResponse.data[0].id;
+        }
       }
-
-
-
-
 
       const productData: {
         title: string;
@@ -327,11 +307,7 @@ const DashboardProductes = () => {
       }
 
       const { status, data } = await axiosInstance.put(`/products/${documentId}`, {
-        data:productData
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        data: productData,
       });
 
       console.log("Updated product:", data);
@@ -340,29 +316,35 @@ const DashboardProductes = () => {
         queryKey: ["products"],
       });
 
-    
-    
       if (status == 200 || status == 204) {
         setOpenEdit(false);
         setThumbnail(undefined);
-        setLoading(false)
 
-      
         toast({
           title: "Product Updated Successfully",
           status: "success",
           duration: 2000,
           isClosable: true,
         });
-
       }
-
-
-    
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error:", error);
+      const err = error as { response?: { status?: number; data?: { error?: { message?: string } } }; message?: string };
+      const is403 = err?.response?.status === 403;
+      toast({
+        title: is403 ? "Permission Denied (403)" : "Failed to update product",
+        description: is403
+          ? "You do not have permission to upload files or edit products. Please ensure you are logged in."
+          : (err?.response?.data?.error?.message || err?.message),
+        status: "error",
+        duration: 3500,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
     }
   };
+
 
 
 
@@ -396,13 +378,12 @@ const DashboardProductes = () => {
           imageFormData,
           {
             signal: controller.signal,
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
           }
         );
 
-        imageId = uploadResponse.data[0].id;
+        if (uploadResponse.data && uploadResponse.data[0]?.id) {
+          imageId = uploadResponse.data[0].id;
+        }
       }
 
 
@@ -430,13 +411,7 @@ const DashboardProductes = () => {
         "/products",
         { data: productData },
         {
-          signal: controller.signal, 
-          
-      headers: {
-        Authorization: `Bearer ${token}` , 
-      }
-          
-
+          signal: controller.signal,
         }
       );
 
@@ -472,6 +447,17 @@ const DashboardProductes = () => {
         setCreatedProduct(initialCreateProduct);
       } else {
         console.error("Create product error:", error);
+        const err = error as { response?: { status?: number; data?: { error?: { message?: string } } }; message?: string };
+        const is403 = err?.response?.status === 403;
+        toast({
+          title: is403 ? "Permission Denied (403)" : "Failed to create product",
+          description: is403
+            ? "You do not have permission to upload files or create products. Please ensure you are logged in."
+            : (err?.response?.data?.error?.message || err?.message),
+          status: "error",
+          duration: 3500,
+          isClosable: true,
+        });
       }
     } finally {
       if (abortControllerRef.current === controller) {
@@ -506,11 +492,8 @@ const DashboardProductes = () => {
 
 
     try {
-      const { status, data } = await axiosInstance.delete(`/products/${documentId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
-      })
+      const { status, data } = await axiosInstance.delete(`/products/${documentId}`);
+
 
       await queryClient.invalidateQueries({
         queryKey: ["products"],
@@ -588,21 +571,34 @@ const DashboardProductes = () => {
 
     
 
-  if (isLoading || !isOnline) return <ProductsTableSkeleton/>;
-  if (isError) return <h2>Error fetching products!</h2>;
+  if (isLoading || !isOnline) return <ProductsTableSkeleton />;
+  if (isError) {
+    return (
+      <Box p={8} textAlign="center">
+        <Heading size="md" color="red.400" mb={3}>
+          Error fetching products!
+        </Heading>
+        <Text color="gray.400" mb={4}>
+          Unable to retrieve products. The server might be waking up or the request timed out.
+        </Text>
+        <Button colorScheme="blue" onClick={() => refetch()}>
+          Retry
+        </Button>
+      </Box>
+    );
+  }
+
+  const productsList: IProduct[] = Array.isArray(data?.data) ? data.data : [];
 
   return (
     <Flex direction={"column"}>
-
-      <Button w={"fit-content"} ml={"auto"} colorScheme="blue" my={2}  onClick={openCreateHandler}>Create Product </Button>
+      <Button w={"fit-content"} ml={"auto"} colorScheme="blue" my={2} onClick={openCreateHandler}>Create Product </Button>
 
       <TableContainer>
-        
-       
-{data.data.length ? (
-  isMobile ? (
-    <VStack spacing={4} align="stretch" w="full">
-      {data.data.map((product: IProduct) => (
+        {productsList.length ? (
+          isMobile ? (
+            <VStack spacing={4} align="stretch" w="full">
+              {productsList.map((product: IProduct) => (
         <Box
           key={product.id}
           p={4}
@@ -707,7 +703,8 @@ const DashboardProductes = () => {
         </Thead>
 
         <Tbody>
-          {data.data.map((product: IProduct) => (
+          {productsList.map((product: IProduct) => (
+
             <Tr key={product.id}>
               <Td>{product.id}</Td>
               <Td>{shortChar(product.title)}</Td>

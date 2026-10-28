@@ -28,8 +28,7 @@ import {
   FiArrowLeft,
 } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
-import { Outlet } from 'react-router-dom';
-import { Link } from "react-router-dom"
+import { Outlet, Link, Navigate } from 'react-router-dom';
 import CookieServices from '../../services/CookieServices';
 
 // Sidebar links matching your screenshot
@@ -39,8 +38,14 @@ const LinkItems = [
   { to:"/", name: 'Back To WebSite', icon: FiArrowLeft },
 ];
 
-const DashboardLayout=({ })=> {
+const DashboardLayout = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const token = CookieServices.get("jwt");
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
 
  
   return (

@@ -1,6 +1,4 @@
-interface IProps { }
-
-const About = ({ }:IProps) => { 
+const About = () => { 
     return (
         <div>
             <h2>About Page</h2>

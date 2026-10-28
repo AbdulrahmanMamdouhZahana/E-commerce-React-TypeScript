@@ -15,13 +15,7 @@ import DashboardProductes from "../pages/Dashboard/DashboardProductes";
 
 
 
-interface IProps { }
-
-
-
-
-
-const Routers = ({ }: IProps) => { 
+const Routers = () => { 
 
   
     const token = CookieServices.get("jwt");

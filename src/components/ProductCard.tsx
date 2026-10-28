@@ -150,7 +150,7 @@ const ProductCard = ({ isLoading, isError, data }: IProps) => {
           <CardFooter gap={2} justifyContent="center">
             <Button
               colorScheme="blue"
-              onClick={() => toProduct(p.documentId)}
+              onClick={() => toProduct(p.documentId || String(p.id))}
             >
               View Details
             </Button>
